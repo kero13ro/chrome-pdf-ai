@@ -1,10 +1,32 @@
-// 監聽來自 popup 的訊息
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'downloadPDF') {
-    handleDownloadPDF(message.url, message.prompt)
-      .then(result => sendResponse(result))
-      .catch(error => sendResponse({ success: false, error: error.message }));
-    return true; // 保持訊息通道開放以便異步回應
+// 監聽 icon 點擊事件
+chrome.action.onClicked.addListener(async (tab) => {
+  try {
+    // 預設提示詞
+    const defaultPrompt = `以考生的角度，分析問題並撰寫模擬答案，考慮到時間限制，條列式回答，盡可能使用學術性的關鍵字，並且用繁體中文回答。並在每一大題後加上詳解，解釋解題思路和脈絡。`;
+
+    // 從 storage 取得儲存的提示詞（如果有的話）
+    const saved = await chrome.storage.local.get(['prompt']);
+    const prompt = saved.prompt || defaultPrompt;
+
+    // 取得當前頁面的 URL 作為 PDF URL
+    const pdfUrl = tab.url;
+
+    // 檢查是否為有效的 URL
+    if (!pdfUrl || (!pdfUrl.includes('.pdf') && !pdfUrl.includes('moex.gov.tw'))) {
+      // 顯示通知
+      chrome.notifications.create('pdf-claude-error', {
+        type: 'basic',
+        title: 'PDF to Claude AI',
+        message: '請在 PDF 頁面或考選部網站上使用此插件',
+        iconUrl: '/icons/icon128.png'
+      });
+      return;
+    }
+
+    // 下載並處理 PDF
+    await handleDownloadPDF(pdfUrl, prompt);
+  } catch (error) {
+    console.error('Error in action click handler:', error);
   }
 });
 

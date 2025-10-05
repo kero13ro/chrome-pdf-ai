@@ -53,7 +53,7 @@ async function uploadPDFToClaude(base64Data, fileName, prompt) {
 
       // 插入提示詞
       if (prompt) {
-        insertPrompt(textarea, prompt);
+        await insertPromptAndSubmit(textarea, prompt);
       }
     } else {
       // 嘗試使用拖放方式
@@ -115,13 +115,13 @@ async function uploadViaDragDrop(element, file, prompt) {
   // 等待上傳完成
   await new Promise(resolve => setTimeout(resolve, 2000));
 
-  // 插入提示詞
+  // 插入提示詞並送出
   if (prompt) {
-    insertPrompt(element, prompt);
+    await insertPromptAndSubmit(element, prompt);
   }
 }
 
-function insertPrompt(textarea, prompt) {
+async function insertPromptAndSubmit(textarea, prompt) {
   // 使用多種方法嘗試插入文字
 
   // 方法 1: 直接設置 textContent
@@ -140,6 +140,71 @@ function insertPrompt(textarea, prompt) {
   document.execCommand('insertText', false, prompt);
 
   console.log('PDF to Claude: Prompt inserted');
+
+  // 等待一下確保提示詞已插入
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 尋找並點擊送出按鈕
+  const submitButton = await findSubmitButton();
+  if (submitButton) {
+    console.log('PDF to Claude: Clicking submit button');
+    submitButton.click();
+  } else {
+    // 如果找不到送出按鈕，嘗試使用 Enter 鍵送出
+    console.log('PDF to Claude: Triggering Enter key');
+    const enterEvent = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      code: 'Enter',
+      keyCode: 13,
+      which: 13,
+      bubbles: true,
+      cancelable: true
+    });
+    textarea.dispatchEvent(enterEvent);
+  }
+}
+
+async function findSubmitButton() {
+  // 嘗試多種選擇器找到送出按鈕
+  const selectors = [
+    'button[type="submit"]',
+    'button[aria-label*="Send"]',
+    'button[aria-label*="submit"]',
+    'button[data-testid*="send"]',
+    'button[data-testid*="submit"]'
+  ];
+
+  for (const selector of selectors) {
+    const button = document.querySelector(selector);
+    if (button) {
+      return button;
+    }
+  }
+
+  // 尋找包含送出相關文字的按鈕
+  const buttons = document.querySelectorAll('button');
+  for (const button of buttons) {
+    const text = button.textContent.toLowerCase();
+    const ariaLabel = button.getAttribute('aria-label')?.toLowerCase() || '';
+
+    if (text.includes('send') || text.includes('submit') ||
+        ariaLabel.includes('send') || ariaLabel.includes('submit') ||
+        text.includes('發送') || text.includes('送出')) {
+      return button;
+    }
+  }
+
+  // 尋找包含發送圖示的按鈕（通常是 SVG）
+  const svgButtons = document.querySelectorAll('button svg');
+  for (const svg of svgButtons) {
+    const button = svg.closest('button');
+    if (button && !button.disabled) {
+      // 通常送出按鈕位於輸入框附近
+      return button;
+    }
+  }
+
+  return null;
 }
 
 function base64ToBlob(base64, mimeType) {
