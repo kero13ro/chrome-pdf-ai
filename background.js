@@ -18,9 +18,22 @@ const DEFAULT_SETTINGS = {
   aiPlatform: 'chatgpt'
 };
 
+// 追蹤處理中的請求（防止重複點擊）
+let isProcessing = false;
+let processingTabId = null;
+
 // 監聽 icon 點擊事件
 chrome.action.onClicked.addListener(async (tab) => {
   try {
+    // 檢查是否正在處理相同的 tab
+    if (isProcessing && processingTabId === tab.id) {
+      return;
+    }
+
+    // 設定處理中狀態
+    isProcessing = true;
+    processingTabId = tab.id;
+
     // 從 storage 取得設定
     const settings = await chrome.storage.local.get(['prompt', 'aiPlatform']);
     const prompt = settings.prompt || DEFAULT_SETTINGS.prompt;
@@ -31,8 +44,11 @@ chrome.action.onClicked.addListener(async (tab) => {
 
     // 檢查是否為有效的 URL
     if (!pdfUrl || (!pdfUrl.includes('.pdf') && !pdfUrl.includes('moex.gov.tw'))) {
-      // 顯示通知
-      const platformName = AI_PLATFORMS[aiPlatform]?.displayName || 'AI';
+      // 清除處理中狀態
+      isProcessing = false;
+      processingTabId = null;
+
+      // 顯示錯誤通知
       chrome.notifications.create('pdf-ai-error', {
         type: 'basic',
         title: 'PDF to AI',
@@ -44,8 +60,16 @@ chrome.action.onClicked.addListener(async (tab) => {
 
     // 下載並處理 PDF
     await handleDownloadPDF(pdfUrl, prompt, aiPlatform);
+
+    // 清除處理中狀態
+    isProcessing = false;
+    processingTabId = null;
   } catch (error) {
     console.error('Error in action click handler:', error);
+
+    // 清除處理中狀態
+    isProcessing = false;
+    processingTabId = null;
   }
 });
 
