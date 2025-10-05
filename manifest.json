@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "PDF to AI Assistant",
+  "name": "PDF to AI - 快速打打開 PDF 文件到 AI 助手",
   "version": "1.0.0",
   "description": "Instantly send PDF files to AI assistants (Claude, ChatGPT) for analysis and answers",
-  "author": "Your Name",
+  "author": "kero13ro",
   "permissions": [
     "activeTab",
     "storage",
