@@ -8,3 +8,7 @@
 # Chrome Extension
 *.pem
 *.crx
+
+# Build output
+dist/
+*.zip
