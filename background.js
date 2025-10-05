@@ -1,4 +1,3 @@
-// AI 平台配置
 const AI_PLATFORMS = {
   claude: {
     name: 'Claude',
@@ -12,43 +11,33 @@ const AI_PLATFORMS = {
   }
 };
 
-// 預設設定
 const DEFAULT_SETTINGS = {
   prompt: '以考生的角度，分析問題並撰寫模擬答案，考慮到時間限制，條列式回答，盡可能使用學術性的關鍵字，並且用繁體中文回答。並在每一大題後加上詳解，解釋解題思路和脈絡。',
   aiPlatform: 'chatgpt'
 };
 
-// 追蹤處理中的請求（防止重複點擊）
+// Prevent duplicate clicks
 let isProcessing = false;
 let processingTabId = null;
 
-// 監聽 icon 點擊事件
 chrome.action.onClicked.addListener(async (tab) => {
   try {
-    // 檢查是否正在處理相同的 tab
     if (isProcessing && processingTabId === tab.id) {
       return;
     }
 
-    // 設定處理中狀態
     isProcessing = true;
     processingTabId = tab.id;
 
-    // 從 storage 取得設定
     const settings = await chrome.storage.local.get(['prompt', 'aiPlatform']);
     const prompt = settings.prompt || DEFAULT_SETTINGS.prompt;
     const aiPlatform = settings.aiPlatform || DEFAULT_SETTINGS.aiPlatform;
-
-    // 取得當前頁面的 URL 作為 PDF URL
     const pdfUrl = tab.url;
 
-    // 檢查是否為有效的 URL
     if (!pdfUrl || (!pdfUrl.includes('.pdf') && !pdfUrl.includes('moex.gov.tw'))) {
-      // 清除處理中狀態
       isProcessing = false;
       processingTabId = null;
 
-      // 顯示錯誤通知
       chrome.notifications.create('pdf-ai-error', {
         type: 'basic',
         title: 'PDF to AI',
@@ -58,16 +47,12 @@ chrome.action.onClicked.addListener(async (tab) => {
       return;
     }
 
-    // 下載並處理 PDF
     await handleDownloadPDF(pdfUrl, prompt, aiPlatform);
 
-    // 清除處理中狀態
     isProcessing = false;
     processingTabId = null;
   } catch (error) {
     console.error('Error in action click handler:', error);
-
-    // 清除處理中狀態
     isProcessing = false;
     processingTabId = null;
   }
@@ -75,17 +60,15 @@ chrome.action.onClicked.addListener(async (tab) => {
 
 async function handleDownloadPDF(pdfUrl, prompt, aiPlatform) {
   try {
-    // 下載 PDF 檔案
     const response = await fetch(pdfUrl);
     if (!response.ok) {
-      throw new Error('無法下載 PDF 檔案');
+      throw new Error('Cannot download PDF');
     }
 
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
     const base64 = arrayBufferToBase64(arrayBuffer);
 
-    // 儲存 PDF 資料和提示詞到 storage
     await chrome.storage.local.set({
       pdfData: base64,
       pdfFileName: extractFileName(pdfUrl),
@@ -94,7 +77,6 @@ async function handleDownloadPDF(pdfUrl, prompt, aiPlatform) {
       timestamp: Date.now()
     });
 
-    // 根據選擇的 AI 平台開啟對應頁面
     const platform = AI_PLATFORMS[aiPlatform] || AI_PLATFORMS.claude;
     await chrome.tabs.create({ url: platform.url });
 
@@ -126,12 +108,10 @@ function extractFileName(url) {
   }
 }
 
-// 監聽來自 content script 的訊息
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'getPDFData') {
     chrome.storage.local.get(['pdfData', 'pdfFileName', 'pendingPrompt', 'pendingPlatform', 'timestamp'])
       .then(data => {
-        // 檢查資料是否過期（5分鐘內有效）
         if (data.timestamp && (Date.now() - data.timestamp) < 5 * 60 * 1000) {
           sendResponse({
             success: true,
@@ -140,7 +120,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             prompt: data.pendingPrompt,
             platform: data.pendingPlatform || 'claude'
           });
-          // 清除已使用的資料
           chrome.storage.local.remove(['pdfData', 'pdfFileName', 'pendingPrompt', 'pendingPlatform', 'timestamp']);
         } else {
           sendResponse({ success: false, error: 'No pending PDF data' });
