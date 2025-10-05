@@ -1,25 +1,32 @@
 {
   "manifest_version": 3,
-  "name": "PDF to Claude AI",
+  "name": "PDF to AI Assistant",
   "version": "1.0.0",
-  "description": "下載 PDF 檔案並傳送到 Claude AI 進行分析",
+  "description": "Instantly send PDF files to AI assistants (Claude, ChatGPT) for analysis and answers",
+  "author": "Your Name",
   "permissions": [
     "activeTab",
-    "downloads",
     "storage",
-    "tabs",
     "notifications"
   ],
   "host_permissions": [
-    "https://wwwq.moex.gov.tw/*",
-    "https://claude.ai/*"
+    "https://claude.ai/*",
+    "https://chatgpt.com/*"
   ],
+  "optional_host_permissions": [
+    "<all_urls>"
+  ],
+  "options_ui": {
+    "page": "settings.html",
+    "open_in_tab": true
+  },
   "action": {
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
-    }
+    },
+    "default_title": "Send PDF to AI"
   },
   "background": {
     "service_worker": "background.js"
@@ -27,7 +34,12 @@
   "content_scripts": [
     {
       "matches": ["https://claude.ai/*"],
-      "js": ["content.js"],
+      "js": ["content-claude.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["content-chatgpt.js"],
       "run_at": "document_idle"
     }
   ],
