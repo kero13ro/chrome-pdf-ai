@@ -10,7 +10,7 @@ async function checkForPendingPDF() {
   try {
     const response = await chrome.runtime.sendMessage({ action: 'getPDFData' });
 
-    if (response.success && response.pdfData) {
+    if (response.success && response.pdfData && response.platform === 'claude') {
       console.log('PDF to Claude: Found pending PDF, preparing to upload');
       await uploadPDFToClaude(response.pdfData, response.fileName, response.prompt);
     }

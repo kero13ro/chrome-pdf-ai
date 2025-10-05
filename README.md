@@ -1,137 +1,230 @@
-# PDF to Claude AI Chrome 插件
+# PDF to AI Assistant - Chrome Extension
 
-這是一個 Chrome 瀏覽器插件，可以下載 PDF 檔案並自動傳送到 Claude AI 進行分析。
+A Chrome extension that instantly sends PDF files to AI assistants (Claude or ChatGPT) for analysis with one click.
 
-## 功能特色
+[English](#english) | [繁體中文](#繁體中文)
 
-- 📄 自動下載 PDF 檔案
-- 🤖 自動開啟 Claude AI 頁面
-- 📤 自動上傳 PDF 到 Claude
-- 💬 自訂提示詞
+---
 
-## 安裝方式
+## English
 
-### 開發模式安裝
+### Features
 
-1. 下載或 clone 這個專案到本地
-2. 開啟 Chrome 瀏覽器，前往 `chrome://extensions/`
-3. 開啟右上角的「開發人員模式」
-4. 點擊「載入未封裝項目」
-5. 選擇這個專案的資料夾
+- 📄 **One-Click PDF Upload**: Click the extension icon on any PDF page
+- 🤖 **Multiple AI Platforms**: Choose between Claude AI or ChatGPT
+- 📤 **Auto-Upload**: Automatically uploads PDF and submits your prompt
+- 💬 **Custom Prompts**: Set your own default questions and prompts
+- 🔒 **Privacy-Focused**: All processing happens locally on your device
+- ⚡ **Fast & Easy**: No manual copy-paste needed
 
-### 準備圖標檔案
+### Installation
 
-在專案根目錄建立 `icons` 資料夾，並放入以下尺寸的圖標：
-- `icon16.png` (16x16 像素)
-- `icon48.png` (48x48 像素)
-- `icon128.png` (128x128 像素)
+#### Development Mode
 
-或者使用線上工具生成圖標：
-- [favicon.io](https://favicon.io/)
-- [IconKitchen](https://icon.kitchen/)
+1. Clone or download this repository
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable "Developer mode" in the top right
+4. Click "Load unpacked"
+5. Select the project folder
 
-## 使用方法
+#### Icons Setup
 
-1. **輸入 PDF 網址**
-   - 點擊瀏覽器工具列上的插件圖標
-   - 在彈出視窗中輸入 PDF 檔案的網址
-   - 或者在已開啟 PDF 的頁面上點擊插件（會自動填入網址）
+Icons are already included in the `icons/` folder. If you need to replace them:
+- `icon16.png` (16x16 pixels)
+- `icon48.png` (48x48 pixels)
+- `icon128.png` (128x128 pixels)
 
-2. **設定提示詞**
-   - 在「提示詞」欄位輸入你想要問 Claude 的問題
-   - 預設提示詞：「請幫我分析這份試題並提供答案」
-   - 提示詞會被儲存，下次使用時會自動填入
+Use online tools like [favicon.io](https://favicon.io/) or [IconKitchen](https://icon.kitchen/)
 
-3. **下載並傳送**
-   - 點擊「下載並傳送到 Claude」按鈕
-   - 插件會自動：
-     - 下載 PDF 檔案
-     - 開啟新分頁到 Claude AI
-     - 上傳 PDF 檔案
-     - 填入提示詞
+### How to Use
 
-## 使用範例
+1. **Navigate to any PDF file** in your browser
+2. **Click the extension icon** in your toolbar
+3. **PDF is automatically**:
+   - Downloaded and processed locally
+   - Uploaded to your chosen AI platform
+   - Submitted with your custom prompt
 
-### 考試試題分析
+### Settings
+
+Right-click the extension icon → **Options** to configure:
+
+- **AI Platform**: Choose Claude or ChatGPT (default: ChatGPT)
+- **Custom Prompt**: Set your default question or instruction
+- **Save Settings**: All preferences stored locally
+
+### Example Use Cases
+
+**Exam Paper Analysis**
 ```
-PDF URL: https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114040&c=107&s=1205&q=1
-提示詞: 請幫我分析這份試題並提供答案
-```
-
-### 文件摘要
-```
-提示詞: 請提供這份 PDF 文件的摘要，重點整理主要內容
+Analyze this exam paper from a student's perspective. Provide concise,
+bullet-point answers with explanations and key academic concepts.
 ```
 
-### 翻譯需求
+**Document Summary**
 ```
-提示詞: 請將這份 PDF 文件翻譯成中文
-```
-
-## 技術架構
-
-- **manifest.json**: Chrome 插件配置檔案（Manifest V3）
-- **popup.html/popup.js**: 插件彈出視窗介面
-- **background.js**: 背景服務工作者，處理 PDF 下載和資料儲存
-- **content.js**: 內容腳本，注入到 Claude.ai 頁面自動上傳檔案
-
-## 注意事項
-
-1. **權限說明**
-   - `activeTab`: 讀取當前分頁資訊
-   - `downloads`: 下載 PDF 檔案
-   - `storage`: 儲存提示詞和 PDF 資料
-   - `tabs`: 開啟新分頁
-
-2. **資料安全**
-   - PDF 資料僅暫存於瀏覽器本地儲存空間
-   - 上傳到 Claude 後會自動清除
-   - 資料有效期為 5 分鐘
-
-3. **限制**
-   - 僅支援公開可訪問的 PDF 網址
-   - 需要有效的 Claude.ai 帳號
-   - PDF 檔案大小受 Claude 平台限制
-
-## 疑難排解
-
-### 無法下載 PDF
-- 確認 PDF 網址可以直接訪問
-- 檢查是否有跨域問題
-- 嘗試在無痕模式下使用
-
-### 無法上傳到 Claude
-- 確認已登入 Claude.ai 帳號
-- 檢查 Claude 頁面是否正常載入
-- 查看瀏覽器控制台是否有錯誤訊息
-
-### 提示詞沒有自動填入
-- Claude 頁面結構可能已更新
-- 可以手動複製貼上提示詞
-
-## 開發與貢獻
-
-歡迎提交 Issue 和 Pull Request！
-
-### 本地開發
-
-1. Clone 專案
-```bash
-git clone https://github.com/yourusername/pdf-claude.git
-cd pdf-claude
+Provide a comprehensive summary of this PDF, highlighting the main points
+and key takeaways.
 ```
 
-2. 修改程式碼
-3. 在 Chrome 中重新載入插件（chrome://extensions/ → 重新載入）
-4. 測試功能
+**Translation**
+```
+Translate this PDF document to Traditional Chinese.
+```
 
-## 授權
+### Technical Details
+
+- **manifest.json**: Extension configuration (Manifest V3)
+- **background.js**: Service worker handling PDF downloads
+- **content-claude.js**: Claude.ai page integration
+- **content-chatgpt.js**: ChatGPT page integration
+- **settings.html/js**: Options page
+
+### Permissions
+
+- `activeTab`: Detect PDF pages and get current URL
+- `storage`: Save your preferences locally
+- `notifications`: Show error messages when needed
+- `host_permissions`: Access Claude.ai and ChatGPT for auto-upload
+
+### Privacy & Security
+
+- ✅ No data collection - we don't have servers
+- ✅ PDFs processed locally on your device
+- ✅ Data sent only to your chosen AI platform
+- ✅ All settings stored securely in Chrome storage
+- ✅ Automatic cleanup after 5 minutes
+
+See [PRIVACY_POLICY.md](PRIVACY_POLICY.md) for details.
+
+### Troubleshooting
+
+**PDF not uploading?**
+- Ensure you're on a PDF page or direct PDF URL
+- Check you're logged into Claude/ChatGPT
+- Open browser console (F12) for error messages
+
+**Prompt not inserting?**
+- AI platform UI may have changed
+- Check console logs for debugging info
+- Manually paste prompt as fallback
+
+### Contributing
+
+Issues and Pull Requests are welcome!
+
+### License
 
 MIT License
 
-## 更新日誌
+### Changelog
 
-### v1.0.0 (2025-10-05)
+**v1.0.0** (2024-10-05)
+- Initial release
+- Support for Claude and ChatGPT
+- Custom prompts
+- Auto-upload and submit
+
+---
+
+## 繁體中文
+
+### 功能特色
+
+- 📄 **一鍵上傳 PDF**：在任何 PDF 頁面點擊插件圖標
+- 🤖 **多 AI 平台支援**：選擇 Claude AI 或 ChatGPT
+- 📤 **自動上傳**：自動上傳 PDF 並送出提示詞
+- 💬 **自訂提示詞**：設定您自己的預設問題和指令
+- 🔒 **注重隱私**：所有處理都在您的裝置本地進行
+- ⚡ **快速簡單**：無需手動複製貼上
+
+### 安裝方式
+
+#### 開發模式安裝
+
+1. Clone 或下載此專案
+2. 開啟 Chrome 瀏覽器，前往 `chrome://extensions/`
+3. 開啟右上角的「開發人員模式」
+4. 點擊「載入未封裝項目」
+5. 選擇專案資料夾
+
+### 使用方法
+
+1. **在瀏覽器中開啟任何 PDF 檔案**
+2. **點擊工具列中的插件圖標**
+3. **PDF 會自動**：
+   - 在本地下載和處理
+   - 上傳到您選擇的 AI 平台
+   - 使用您的自訂提示詞送出
+
+### 設定選項
+
+右鍵點擊插件圖標 → **選項** 進行設定：
+
+- **AI 平台**：選擇 Claude 或 ChatGPT（預設：ChatGPT）
+- **自訂提示詞**：設定您的預設問題或指令
+- **儲存設定**：所有偏好設定都儲存在本地
+
+### 使用範例
+
+**考試試題分析**
+```
+以考生的角度，分析問題並撰寫模擬答案，考慮到時間限制，
+條列式回答，盡可能使用學術性的關鍵字，並且用繁體中文回答。
+並在每一大題後加上詳解，解釋解題思路和脈絡。
+```
+
+**文件摘要**
+```
+請提供這份 PDF 文件的摘要，重點整理主要內容和關鍵要點。
+```
+
+**翻譯需求**
+```
+請將這份 PDF 文件翻譯成繁體中文。
+```
+
+### 權限說明
+
+- `activeTab`：偵測 PDF 頁面和取得當前網址
+- `storage`：在本地儲存您的偏好設定
+- `notifications`：在需要時顯示錯誤訊息
+- `host_permissions`：存取 Claude.ai 和 ChatGPT 以自動上傳
+
+### 隱私與安全
+
+- ✅ 不收集資料 - 我們沒有伺服器
+- ✅ PDF 在您的裝置上本地處理
+- ✅ 資料僅傳送到您選擇的 AI 平台
+- ✅ 所有設定安全地儲存在 Chrome 儲存空間
+- ✅ 5 分鐘後自動清除
+
+詳見 [PRIVACY_POLICY.md](PRIVACY_POLICY.md)。
+
+### 疑難排解
+
+**PDF 無法上傳？**
+- 確保您在 PDF 頁面或直接的 PDF 網址上
+- 檢查您是否已登入 Claude/ChatGPT
+- 開啟瀏覽器控制台（F12）查看錯誤訊息
+
+**提示詞沒有插入？**
+- AI 平台介面可能已更改
+- 查看控制台日誌以進行除錯
+- 可以手動貼上提示詞作為備案
+
+### 貢獻
+
+歡迎提交 Issue 和 Pull Request！
+
+### 授權
+
+MIT License
+
+### 更新日誌
+
+**v1.0.0** (2024-10-05)
 - 初始版本發布
-- 支援 PDF 下載和上傳到 Claude
+- 支援 Claude 和 ChatGPT
 - 自訂提示詞功能
+- 自動上傳和送出
