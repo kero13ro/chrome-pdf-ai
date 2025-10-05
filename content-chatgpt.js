@@ -1,5 +1,3 @@
-console.log('PDF to ChatGPT: Content script loaded');
-
 setTimeout(async () => {
   await checkForPendingPDF();
 }, 2000);
@@ -9,7 +7,6 @@ async function checkForPendingPDF() {
     const response = await chrome.runtime.sendMessage({ action: 'getPDFData' });
 
     if (response.success && response.pdfData && response.platform === 'chatgpt') {
-      console.log('PDF to ChatGPT: Found pending PDF, preparing to upload');
       await uploadPDFToChatGPT(response.pdfData, response.fileName, response.prompt);
     }
   } catch (error) {
@@ -32,8 +29,6 @@ async function uploadPDFToChatGPT(base64Data, fileName, prompt) {
       const changeEvent = new Event('change', { bubbles: true });
       fileInput.dispatchEvent(changeEvent);
 
-      console.log('PDF to ChatGPT: File uploaded via input');
-
       await new Promise(resolve => setTimeout(resolve, 5000));
 
       const textarea = await waitForElement('div#prompt-textarea[contenteditable="true"], #prompt-textarea', 10000);
@@ -42,8 +37,6 @@ async function uploadPDFToChatGPT(base64Data, fileName, prompt) {
         console.error('PDF to ChatGPT: Could not find ChatGPT input field after upload');
         return;
       }
-
-      console.log('PDF to ChatGPT: Found input field:', textarea);
 
       if (prompt) {
         await insertPromptAndSubmit(textarea, prompt);
@@ -91,8 +84,6 @@ async function insertPromptAndSubmit(element, prompt) {
   element.focus();
   await new Promise(resolve => setTimeout(resolve, 300));
 
-  console.log('PDF to ChatGPT: Element type:', element.tagName, 'contenteditable:', element.getAttribute('contenteditable'));
-
   if (element.getAttribute('contenteditable') === 'true') {
     element.innerHTML = '';
 
@@ -108,8 +99,6 @@ async function insertPromptAndSubmit(element, prompt) {
 
     element.textContent = prompt;
     element.innerText = prompt;
-
-    console.log('PDF to ChatGPT: Set content to contenteditable div');
   } else {
     element.value = prompt;
 
@@ -132,19 +121,13 @@ async function insertPromptAndSubmit(element, prompt) {
     data: prompt
   }));
 
-  console.log('PDF to ChatGPT: Prompt inserted, content:', element.textContent?.substring(0, 50));
-
   await new Promise(resolve => setTimeout(resolve, 2000));
 
   const submitButton = await findSubmitButton();
   if (submitButton) {
-    console.log('PDF to ChatGPT: Found submit button, clicking');
-
     if (!submitButton.disabled) {
       submitButton.click();
-      console.log('PDF to ChatGPT: Submit button clicked');
     } else {
-      console.log('PDF to ChatGPT: Submit button is disabled, trying Enter key');
       const enterEvent = new KeyboardEvent('keydown', {
         key: 'Enter',
         code: 'Enter',
@@ -155,7 +138,6 @@ async function insertPromptAndSubmit(element, prompt) {
       element.dispatchEvent(enterEvent);
     }
   } else {
-    console.log('PDF to ChatGPT: Submit button not found, using Enter key');
     const enterEvent = new KeyboardEvent('keydown', {
       key: 'Enter',
       code: 'Enter',
@@ -180,7 +162,6 @@ async function findSubmitButton() {
     for (const selector of selectors) {
       const button = document.querySelector(selector);
       if (button && !button.disabled) {
-        console.log(`PDF to ChatGPT: Found submit button with selector: ${selector}`);
         return button;
       }
     }
@@ -191,24 +172,19 @@ async function findSubmitButton() {
       const buttonText = button.textContent?.toLowerCase() || '';
 
       if ((ariaLabel.includes('send') || buttonText.includes('send')) && !button.disabled) {
-        console.log('PDF to ChatGPT: Found submit button by text/aria-label');
         return button;
       }
     }
 
     if (i < 9) {
-      console.log(`PDF to ChatGPT: Waiting for submit button... attempt ${i + 1}/10`);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
 
   const form = document.querySelector('form[data-type="unified-composer"]');
   if (form) {
-    console.log('PDF to ChatGPT: Found composer form');
-
     const trailingArea = form.querySelector('[class*="grid-area:trailing"], .\\[grid-area\\:trailing\\]');
     if (trailingArea) {
-      console.log('PDF to ChatGPT: Found trailing area');
       const buttons = trailingArea.querySelectorAll('button');
 
       for (const button of buttons) {
@@ -217,7 +193,6 @@ async function findSubmitButton() {
             && !button.disabled
             && !button.getAttribute('aria-label')?.includes('Dictate')
             && !button.getAttribute('aria-label')?.includes('voice')) {
-          console.log('PDF to ChatGPT: Found potential submit button in trailing area');
           return button;
         }
       }
@@ -233,7 +208,6 @@ async function findSubmitButton() {
           !ariaLabel.includes('移除') &&
           !ariaLabel.includes('刪除') &&
           !button.disabled) {
-        console.log('PDF to ChatGPT: Found round button (likely submit):', ariaLabel);
         return button;
       }
     }
@@ -266,11 +240,9 @@ async function findSubmitButton() {
   }
 
   if (rightmostButton) {
-    console.log('PDF to ChatGPT: Found rightmost button (likely submit):', rightmostButton.getAttribute('aria-label'));
     return rightmostButton;
   }
 
-  console.log('PDF to ChatGPT: No submit button found');
   return null;
 }
 

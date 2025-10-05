@@ -1,5 +1,3 @@
-console.log('PDF to Claude: Content script loaded');
-
 setTimeout(async () => {
   await checkForPendingPDF();
 }, 2000);
@@ -9,7 +7,6 @@ async function checkForPendingPDF() {
     const response = await chrome.runtime.sendMessage({ action: 'getPDFData' });
 
     if (response.success && response.pdfData && response.platform === 'claude') {
-      console.log('PDF to Claude: Found pending PDF, preparing to upload');
       await uploadPDFToClaude(response.pdfData, response.fileName, response.prompt);
     }
   } catch (error) {
@@ -38,8 +35,6 @@ async function uploadPDFToClaude(base64Data, fileName, prompt) {
 
       const changeEvent = new Event('change', { bubbles: true });
       fileInput.dispatchEvent(changeEvent);
-
-      console.log('PDF to Claude: File uploaded via input');
 
       await new Promise(resolve => setTimeout(resolve, 2000));
 
@@ -86,8 +81,6 @@ async function findFileInput() {
 }
 
 async function uploadViaDragDrop(element, file, prompt) {
-  console.log('PDF to Claude: Attempting drag-drop upload');
-
   const dataTransfer = new DataTransfer();
   dataTransfer.items.add(file);
 
@@ -119,16 +112,12 @@ async function insertPromptAndSubmit(textarea, prompt) {
   textarea.focus();
   document.execCommand('insertText', false, prompt);
 
-  console.log('PDF to Claude: Prompt inserted');
-
   await new Promise(resolve => setTimeout(resolve, 500));
 
   const submitButton = await findSubmitButton();
   if (submitButton) {
-    console.log('PDF to Claude: Clicking submit button');
     submitButton.click();
   } else {
-    console.log('PDF to Claude: Triggering Enter key');
     const enterEvent = new KeyboardEvent('keydown', {
       key: 'Enter',
       code: 'Enter',

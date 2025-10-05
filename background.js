@@ -23,16 +23,13 @@ let processingTabId = null;
 async function checkIfPDF(url) {
   if (!url) return false;
 
-  // Quick check: if URL ends with .pdf
   const urlLower = url.toLowerCase();
   if (urlLower.endsWith('.pdf') ||
       urlLower.includes('.pdf?') ||
       urlLower.includes('.pdf#')) {
-    console.log('PDF to AI: URL contains .pdf extension');
     return true;
   }
 
-  // Check Content-Type by fetching first few bytes
   try {
     const response = await fetch(url, {
       method: 'GET',
@@ -40,32 +37,25 @@ async function checkIfPDF(url) {
     });
 
     const contentType = response.headers.get('Content-Type');
-    console.log('PDF to AI: Content-Type:', contentType);
 
     if (contentType && contentType.includes('application/pdf')) {
-      console.log('PDF to AI: Detected PDF by Content-Type');
       return true;
     }
 
-    // Check PDF magic number (%PDF)
     const buffer = await response.arrayBuffer();
     const bytes = new Uint8Array(buffer);
 
     if (bytes.length >= 4 &&
-        bytes[0] === 0x25 &&  // %
-        bytes[1] === 0x50 &&  // P
-        bytes[2] === 0x44 &&  // D
-        bytes[3] === 0x46) {  // F
-      console.log('PDF to AI: Detected PDF by magic number');
+        bytes[0] === 0x25 &&
+        bytes[1] === 0x50 &&
+        bytes[2] === 0x44 &&
+        bytes[3] === 0x46) {
       return true;
     }
   } catch (error) {
-    console.log('PDF to AI: Error checking PDF:', error.message);
-    // If fetch fails, fallback to URL check
     return false;
   }
 
-  console.log('PDF to AI: Not a PDF');
   return false;
 }
 
@@ -92,7 +82,7 @@ chrome.action.onClicked.addListener(async (tab) => {
       chrome.notifications.create({
         type: 'basic',
         iconUrl: '/icons/icon128.png',
-        title: 'PDF to AI',
+        title: 'PDF to AI Assistant',
         message: 'Please use this extension on a PDF page',
       });
       return;
