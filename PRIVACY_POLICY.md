@@ -73,7 +73,7 @@ We may update this privacy policy from time to time. Any changes will be posted 
 ## Contact
 
 If you have any questions about this privacy policy, please create an issue on our GitHub repository:
-https://github.com/[your-username]/pdf-claude
+https://github.com/kero13ro/chrome-pdf-ai
 
 ## Children's Privacy
 

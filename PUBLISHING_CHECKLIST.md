@@ -66,7 +66,8 @@
 
 **當前 URL 格式**:
 ```
-https://github.com/[your-username]/pdf-claude/blob/main/PRIVACY_POLICY.md
+https://github.com/kero13ro/chrome-pdf-ai/blob/main/PRIVACY_POLICY.md
+
 ```
 
 ### 5. **manifest.json 最後檢查**

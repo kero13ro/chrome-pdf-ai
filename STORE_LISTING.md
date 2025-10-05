@@ -62,7 +62,7 @@ Productivity
 English
 
 ## Privacy Policy URL
-https://github.com/[your-username]/pdf-claude/blob/main/PRIVACY_POLICY.md
+https://github.com/kero13ro/chrome-pdf-ai/blob/main/PRIVACY_POLICY.md
 
 ## Screenshots Needed (5 recommended)
 
@@ -100,7 +100,7 @@ Extension branding with key features
 - Automation
 
 ## Support URL
-https://github.com/[your-username]/pdf-claude/issues
+https://github.com/kero13ro/chrome-pdf-ai/issues
 
 ## Justification for Permissions
 
