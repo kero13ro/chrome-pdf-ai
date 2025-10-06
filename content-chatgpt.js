@@ -1,16 +1,26 @@
 setTimeout(async () => {
-  await checkForPendingPDF();
+  await checkForPendingData();
 }, 2000);
 
-async function checkForPendingPDF() {
+async function checkForPendingData() {
   try {
-    const response = await chrome.runtime.sendMessage({ action: 'getPDFData' });
+    // 檢查是否有 PDF 數據
+    const pdfResponse = await chrome.runtime.sendMessage({ action: 'getPDFData' });
 
-    if (response.success && response.pdfData && response.platform === 'chatgpt') {
-      await uploadPDFToChatGPT(response.pdfData, response.fileName, response.prompt);
+    if (pdfResponse.success && pdfResponse.pdfData && pdfResponse.platform === 'chatgpt') {
+      await uploadPDFToChatGPT(pdfResponse.pdfData, pdfResponse.fileName, pdfResponse.prompt);
+      return;
+    }
+
+    // 檢查是否有 YouTube 數據
+    const youtubeResponse = await chrome.runtime.sendMessage({ action: 'getYouTubeData' });
+
+    if (youtubeResponse.success && youtubeResponse.text && youtubeResponse.platform === 'chatgpt') {
+      await insertTextToChatGPT(youtubeResponse.text);
+      return;
     }
   } catch (error) {
-    console.error('PDF to ChatGPT: Error checking for pending PDF:', error);
+    console.error('ChatGPT: Error checking for pending data:', error);
   }
 }
 
@@ -256,6 +266,21 @@ function base64ToBlob(base64, mimeType) {
 
   const byteArray = new Uint8Array(byteNumbers);
   return new Blob([byteArray], { type: mimeType });
+}
+
+async function insertTextToChatGPT(text) {
+  try {
+    const textarea = await waitForElement('div#prompt-textarea[contenteditable="true"], #prompt-textarea', 10000);
+
+    if (!textarea) {
+      console.error('ChatGPT: Could not find ChatGPT input field');
+      return;
+    }
+
+    await insertPromptAndSubmit(textarea, text);
+  } catch (error) {
+    console.error('ChatGPT: Error inserting text:', error);
+  }
 }
 
 function waitForElement(selector, timeout = 5000) {

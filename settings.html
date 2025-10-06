@@ -217,14 +217,17 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>📄 PDF to AI Assistant 設定</h1>
+      <h1>⚙️ AI Assistant 設定</h1>
       <p>自訂提示詞和 AI 平台偏好</p>
     </div>
 
     <div class="content">
       <form id="settingsForm">
+        <!-- PDF 設定區塊 -->
+        <h2 style="margin-bottom: 20px; color: #536DFE; font-size: 20px;">📄 PDF 設定</h2>
+
         <div class="form-group">
-          <label for="prompt">提示詞</label>
+          <label for="prompt">PDF 提示詞</label>
           <p class="description">此提示詞將在上傳 PDF 後自動填入 AI 對話框</p>
           <textarea
             id="prompt"
@@ -234,7 +237,7 @@
         </div>
 
         <div class="form-group">
-          <label>AI 平台</label>
+          <label>PDF AI 平台</label>
           <p class="description">選擇要將 PDF 傳送到哪個 AI 平台</p>
           <div class="radio-group">
             <div class="radio-item">
@@ -246,6 +249,50 @@
             <div class="radio-item">
               <label class="radio-label">
                 <input type="radio" name="aiPlatform" value="chatgpt" id="chatgpt">
+                <span class="radio-text">ChatGPT</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #e0e0e0;">
+
+        <!-- YouTube 設定區塊 -->
+        <h2 style="margin-bottom: 20px; color: #667eea; font-size: 20px;">🎬 YouTube 設定</h2>
+
+        <div class="form-group">
+          <label for="transcriptPrompt">Transcript 提示詞</label>
+          <p class="description">用於翻譯 YouTube 字幕的提示詞</p>
+          <textarea
+            id="transcriptPrompt"
+            name="transcriptPrompt"
+            placeholder="輸入 Transcript 提示詞..."
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="summarizePrompt">Summarize 提示詞</label>
+          <p class="description">用於彙整 YouTube 字幕重點的提示詞</p>
+          <textarea
+            id="summarizePrompt"
+            name="summarizePrompt"
+            placeholder="輸入 Summarize 提示詞..."
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>YouTube AI 平台</label>
+          <p class="description">選擇要將 YouTube 字幕傳送到哪個 AI 平台</p>
+          <div class="radio-group">
+            <div class="radio-item">
+              <label class="radio-label">
+                <input type="radio" name="youtubeAiPlatform" value="claude" id="youtubeClaude">
+                <span class="radio-text">Claude</span>
+              </label>
+            </div>
+            <div class="radio-item">
+              <label class="radio-label">
+                <input type="radio" name="youtubeAiPlatform" value="chatgpt" id="youtubeChatgpt">
                 <span class="radio-text">ChatGPT</span>
               </label>
             </div>

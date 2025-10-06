@@ -16,9 +16,11 @@ const DEFAULT_SETTINGS = {
   aiPlatform: 'chatgpt'
 };
 
-// Prevent duplicate clicks
-let isProcessing = false;
-let processingTabId = null;
+const DEFAULT_YOUTUBE_SETTINGS = {
+  transcriptPrompt: '將所有英文字幕 翻譯成繁體中文，並附在每一行後面',
+  summarizePrompt: '用英文簡要彙整重點，約三個段落以內，並附上繁體中文版本',
+  youtubeAiPlatform: 'chatgpt'
+};
 
 async function checkIfPDF(url) {
   if (!url) return false;
@@ -58,46 +60,6 @@ async function checkIfPDF(url) {
 
   return false;
 }
-
-chrome.action.onClicked.addListener(async (tab) => {
-  try {
-    if (isProcessing && processingTabId === tab.id) {
-      return;
-    }
-
-    isProcessing = true;
-    processingTabId = tab.id;
-
-    const settings = await chrome.storage.local.get(['prompt', 'aiPlatform']);
-    const prompt = settings.prompt || DEFAULT_SETTINGS.prompt;
-    const aiPlatform = settings.aiPlatform || DEFAULT_SETTINGS.aiPlatform;
-    const pdfUrl = tab.url;
-
-    const isPDF = await checkIfPDF(pdfUrl);
-
-    if (!isPDF) {
-      isProcessing = false;
-      processingTabId = null;
-
-      chrome.notifications.create({
-        type: 'basic',
-        iconUrl: '/icons/icon128.png',
-        title: 'PDF to AI Assistant',
-        message: 'Please use this extension on a PDF page',
-      });
-      return;
-    }
-
-    await handleDownloadPDF(pdfUrl, prompt, aiPlatform);
-
-    isProcessing = false;
-    processingTabId = null;
-  } catch (error) {
-    console.error('Error in action click handler:', error);
-    isProcessing = false;
-    processingTabId = null;
-  }
-});
 
 async function handleDownloadPDF(pdfUrl, prompt, aiPlatform) {
   try {
@@ -149,6 +111,90 @@ function extractFileName(url) {
   }
 }
 
+async function handleYouTubeTranscript(actionType, tabId) {
+  try {
+    // 確保 content script 已經注入
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        files: ['content-youtube.js']
+      });
+      // 等待 content script 初始化
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (injectionError) {
+      // Content script 可能已經注入，繼續執行
+      console.log('Content script may already be injected:', injectionError);
+    }
+
+    // 向 content-youtube.js 請求提取字幕
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tabId, { action: 'extractTranscript' });
+    } catch (messageError) {
+      throw new Error('無法連接到頁面。請重新整理 YouTube 頁面後再試。');
+    }
+
+    if (!response || !response.success || !response.transcript) {
+      throw new Error(response?.error || '無法提取字幕');
+    }
+
+    // 獲取設定
+    const settings = await chrome.storage.local.get([
+      'transcriptPrompt',
+      'summarizePrompt',
+      'youtubeAiPlatform'
+    ]);
+
+    const transcriptPrompt = settings.transcriptPrompt || DEFAULT_YOUTUBE_SETTINGS.transcriptPrompt;
+    const summarizePrompt = settings.summarizePrompt || DEFAULT_YOUTUBE_SETTINGS.summarizePrompt;
+    const aiPlatform = settings.youtubeAiPlatform || DEFAULT_YOUTUBE_SETTINGS.youtubeAiPlatform;
+
+    // 根據 actionType 選擇對應的 prompt
+    const prompt = actionType === 'transcript' ? transcriptPrompt : summarizePrompt;
+
+    // 組合完整的文字內容
+    const fullText = `${prompt}\n\n字幕內容:\n${response.transcript}`;
+
+    // 儲存到 storage
+    await chrome.storage.local.set({
+      youtubeText: fullText,
+      youtubePrompt: prompt,
+      youtubePlatform: aiPlatform,
+      youtubeTimestamp: Date.now()
+    });
+
+    // 開啟 AI 平台
+    const platform = AI_PLATFORMS[aiPlatform] || AI_PLATFORMS.chatgpt;
+    await chrome.tabs.create({ url: platform.url });
+
+    return { success: true };
+  } catch (error) {
+    console.error('處理 YouTube 字幕時發生錯誤:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function handlePDFFromPopup(pdfUrl) {
+  try {
+    const isPDF = await checkIfPDF(pdfUrl);
+
+    if (!isPDF) {
+      return { success: false, error: 'Please use this extension on a PDF page' };
+    }
+
+    const settings = await chrome.storage.local.get(['prompt', 'aiPlatform']);
+    const prompt = settings.prompt || DEFAULT_SETTINGS.prompt;
+    const aiPlatform = settings.aiPlatform || DEFAULT_SETTINGS.aiPlatform;
+
+    await handleDownloadPDF(pdfUrl, prompt, aiPlatform);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error processing PDF:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'getPDFData') {
     chrome.storage.local.get(['pdfData', 'pdfFileName', 'pendingPrompt', 'pendingPlatform', 'timestamp'])
@@ -165,6 +211,57 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         } else {
           sendResponse({ success: false, error: 'No pending PDF data' });
         }
+      });
+    return true;
+  }
+
+  if (message.action === 'processYouTubeTranscript') {
+    handleYouTubeTranscript(message.actionType, message.tabId)
+      .then(result => sendResponse(result))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+
+  if (message.action === 'getYouTubeData') {
+    chrome.storage.local.get(['youtubeText', 'youtubePrompt', 'youtubePlatform', 'youtubeTimestamp'])
+      .then(data => {
+        if (data.youtubeTimestamp && (Date.now() - data.youtubeTimestamp) < 5 * 60 * 1000) {
+          sendResponse({
+            success: true,
+            text: data.youtubeText,
+            prompt: data.youtubePrompt,
+            platform: data.youtubePlatform || 'chatgpt'
+          });
+          chrome.storage.local.remove(['youtubeText', 'youtubePrompt', 'youtubePlatform', 'youtubeTimestamp']);
+        } else {
+          sendResponse({ success: false, error: 'No pending YouTube data' });
+        }
+      });
+    return true;
+  }
+
+  if (message.action === 'processPDF') {
+    handlePDFFromPopup(message.url)
+      .then(result => sendResponse(result))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+
+  if (message.action === 'fetchCaptionUrl') {
+    fetch(message.url)
+      .then(response => {
+        console.log('Subtitle fetch status:', response.status);
+        console.log('Subtitle fetch headers:', [...response.headers.entries()]);
+        return response.text();
+      })
+      .then(text => {
+        console.log('Subtitle text length:', text.length);
+        console.log('Subtitle text preview:', text.substring(0, 500));
+        sendResponse({ success: true, text: text });
+      })
+      .catch(error => {
+        console.error('Subtitle fetch error:', error);
+        sendResponse({ success: false, error: error.message });
       });
     return true;
   }
