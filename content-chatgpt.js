@@ -1,23 +1,16 @@
-// 使用智能重試機制，而不是固定延遲
 async function initializeWithRetry() {
   const maxAttempts = 5;
-  const retryDelay = 800; // 每次重試間隔 800ms
+  const retryDelay = 800;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
-      // 檢查是否有 pending data
       const hasPendingData = await checkForPendingData();
-
       if (hasPendingData) {
-        // 成功處理，結束
         return;
       }
-
-      // 沒有 pending data，停止重試
       return;
     } catch (error) {
       console.log(`ChatGPT: Attempt ${attempt + 1}/${maxAttempts} failed, retrying...`);
-
       if (attempt < maxAttempts - 1) {
         await new Promise(resolve => setTimeout(resolve, retryDelay));
       }
@@ -25,31 +18,28 @@ async function initializeWithRetry() {
   }
 }
 
-// 立即開始，但使用重試機制
 initializeWithRetry();
 
 async function checkForPendingData() {
   try {
-    // 檢查是否有 PDF 數據
     const pdfResponse = await chrome.runtime.sendMessage({ action: 'getPDFData' });
 
     if (pdfResponse.success && pdfResponse.pdfData && pdfResponse.platform === 'chatgpt') {
       await uploadPDFToChatGPT(pdfResponse.pdfData, pdfResponse.fileName, pdfResponse.prompt);
-      return true; // 成功處理
+      return true;
     }
 
-    // 檢查是否有 YouTube 數據
     const youtubeResponse = await chrome.runtime.sendMessage({ action: 'getYouTubeData' });
 
     if (youtubeResponse.success && youtubeResponse.text && youtubeResponse.platform === 'chatgpt') {
       await insertTextToChatGPT(youtubeResponse.text);
-      return true; // 成功處理
+      return true;
     }
 
-    return false; // 沒有 pending data
+    return false;
   } catch (error) {
     console.error('ChatGPT: Error checking for pending data:', error);
-    throw error; // 重新拋出以觸發重試
+    throw error;
   }
 }
 

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Youtube to AI Assistant",
+  "name": "YouTube & PDF to AI Assistant",
   "version": "1.0.0",
-  "description": "Instantly send YouTube video transcripts to AI assistants (Claude, ChatGPT) for analysis and answers",
+  "description": "Extract YouTube video transcripts and send PDFs to AI assistants (Claude, ChatGPT) for instant analysis and answers",
   "author": "kero13ro",
   "permissions": [
     "activeTab",
@@ -19,7 +19,7 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "Send PDF to AI Assistant",
+    "default_title": "YouTube & PDF to AI Assistant",
     "default_popup": "popup.html"
   },
   "background": {
