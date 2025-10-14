@@ -1,16 +1,26 @@
 setTimeout(async () => {
-  await checkForPendingPDF();
+  await checkForPendingData();
 }, 2000);
 
-async function checkForPendingPDF() {
+async function checkForPendingData() {
   try {
-    const response = await chrome.runtime.sendMessage({ action: 'getPDFData' });
+    // 檢查是否有 PDF 數據
+    const pdfResponse = await chrome.runtime.sendMessage({ action: 'getPDFData' });
 
-    if (response.success && response.pdfData && response.platform === 'claude') {
-      await uploadPDFToClaude(response.pdfData, response.fileName, response.prompt);
+    if (pdfResponse.success && pdfResponse.pdfData && pdfResponse.platform === 'claude') {
+      await uploadPDFToClaude(pdfResponse.pdfData, pdfResponse.fileName, pdfResponse.prompt);
+      return;
+    }
+
+    // 檢查是否有 YouTube 數據
+    const youtubeResponse = await chrome.runtime.sendMessage({ action: 'getYouTubeData' });
+
+    if (youtubeResponse.success && youtubeResponse.text && youtubeResponse.platform === 'claude') {
+      await insertTextToClaude(youtubeResponse.text);
+      return;
     }
   } catch (error) {
-    console.error('PDF to Claude: Error checking for pending PDF:', error);
+    console.error('Claude: Error checking for pending data:', error);
   }
 }
 
@@ -179,6 +189,21 @@ function base64ToBlob(base64, mimeType) {
 
   const byteArray = new Uint8Array(byteNumbers);
   return new Blob([byteArray], { type: mimeType });
+}
+
+async function insertTextToClaude(text) {
+  try {
+    const textarea = await waitForElement('div[contenteditable="true"]', 10000);
+
+    if (!textarea) {
+      console.error('Claude: Could not find Claude input field');
+      return;
+    }
+
+    await insertPromptAndSubmit(textarea, text);
+  } catch (error) {
+    console.error('Claude: Error inserting text:', error);
+  }
 }
 
 function waitForElement(selector, timeout = 5000) {

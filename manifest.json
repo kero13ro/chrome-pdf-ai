@@ -1,32 +1,31 @@
 {
   "manifest_version": 3,
-  "name": "PDF to AI Assistant - 快速打開 PDF 文件到 AI 助手",
+  "name": "Youtube to AI Assistant",
   "version": "1.0.0",
-  "description": "Instantly send PDF files to AI assistants (Claude, ChatGPT) for analysis and answers",
+  "description": "Instantly send YouTube video transcripts to AI assistants (Claude, ChatGPT) for analysis and answers",
   "author": "kero13ro",
   "permissions": [
     "activeTab",
     "storage",
-    "notifications"
+    "notifications",
+    "scripting"
   ],
   "host_permissions": [
     "https://claude.ai/*",
-    "https://chatgpt.com/*"
+    "https://chatgpt.com/*",
+    "https://www.youtube.com/*"
   ],
   "optional_host_permissions": [
     "<all_urls>"
   ],
-  "options_ui": {
-    "page": "settings.html",
-    "open_in_tab": true
-  },
   "action": {
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "Send PDF to AI Assistant"
+    "default_title": "Send PDF to AI Assistant",
+    "default_popup": "popup.html"
   },
   "background": {
     "service_worker": "background.js"
@@ -40,6 +39,11 @@
     {
       "matches": ["https://chatgpt.com/*"],
       "js": ["content-chatgpt.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["content-youtube.js"],
       "run_at": "document_idle"
     }
   ],
