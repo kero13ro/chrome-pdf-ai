@@ -6,17 +6,12 @@
   "author": "kero13ro",
   "permissions": [
     "activeTab",
-    "storage",
-    "notifications",
-    "scripting"
+    "storage"
   ],
   "host_permissions": [
     "https://claude.ai/*",
     "https://chatgpt.com/*",
     "https://www.youtube.com/*"
-  ],
-  "optional_host_permissions": [
-    "<all_urls>"
   ],
   "action": {
     "default_icon": {
@@ -42,9 +37,9 @@
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://www.youtube.com/*"],
+      "matches": ["https://www.youtube.com/watch*"],
       "js": ["content-youtube.js"],
-      "run_at": "document_idle"
+      "run_at": "document_start"
     }
   ],
   "icons": {

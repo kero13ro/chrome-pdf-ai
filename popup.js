@@ -158,6 +158,7 @@ async function handlePDFSubmit(tab, prompt, platform) {
 async function checkIfPDF(url) {
   if (!url) return false;
 
+  // 快速檢查 URL 是否包含 .pdf
   const urlLower = url.toLowerCase();
   if (urlLower.endsWith('.pdf') ||
       urlLower.includes('.pdf?') ||
@@ -165,15 +166,16 @@ async function checkIfPDF(url) {
     return true;
   }
 
+  // 對於沒有 .pdf 副檔名的 URL，請求 background.js 進行深度檢測
   try {
-    const response = await fetch(url, {
-      method: 'HEAD',
-      mode: 'no-cors'
+    const response = await chrome.runtime.sendMessage({
+      action: 'checkIfPDF',
+      url: url
     });
-    const contentType = response.headers.get('Content-Type');
-    return contentType && contentType.includes('application/pdf');
+    return response && response.isPDF;
   } catch (error) {
-    return urlLower.includes('.pdf');
+    console.error('Error checking PDF:', error);
+    return false;
   }
 }
 

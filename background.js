@@ -109,19 +109,6 @@ function extractFileName(url) {
 
 async function handleYouTubeTranscript(prompt, platform, tabId) {
   try {
-    // 確保 content script 已經注入
-    try {
-      await chrome.scripting.executeScript({
-        target: { tabId: tabId },
-        files: ['content-youtube.js']
-      });
-      // 等待 content script 初始化
-      await new Promise(resolve => setTimeout(resolve, 500));
-    } catch (injectionError) {
-      // Content script 可能已經注入，繼續執行
-      console.log('Content script may already be injected:', injectionError);
-    }
-
     // 向 content-youtube.js 請求提取字幕
     let response;
     try {
@@ -174,6 +161,13 @@ async function handlePDFFromPopup(pdfUrl, prompt, platform) {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'checkIfPDF') {
+    checkIfPDF(message.url)
+      .then(isPDF => sendResponse({ isPDF: isPDF }))
+      .catch(() => sendResponse({ isPDF: false }));
+    return true;
+  }
+
   if (message.action === 'getPDFData') {
     chrome.storage.local.get(['pdfData', 'pdfFileName', 'pendingPrompt', 'pendingPlatform', 'timestamp'])
       .then(data => {

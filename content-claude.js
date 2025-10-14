@@ -1,6 +1,32 @@
-setTimeout(async () => {
-  await checkForPendingData();
-}, 2000);
+// 使用智能重試機制，而不是固定延遲
+async function initializeWithRetry() {
+  const maxAttempts = 5;
+  const retryDelay = 800; // 每次重試間隔 800ms
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      // 檢查是否有 pending data
+      const hasPendingData = await checkForPendingData();
+
+      if (hasPendingData) {
+        // 成功處理，結束
+        return;
+      }
+
+      // 沒有 pending data，停止重試
+      return;
+    } catch (error) {
+      console.log(`Claude: Attempt ${attempt + 1}/${maxAttempts} failed, retrying...`);
+
+      if (attempt < maxAttempts - 1) {
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      }
+    }
+  }
+}
+
+// 立即開始，但使用重試機制
+initializeWithRetry();
 
 async function checkForPendingData() {
   try {
@@ -9,7 +35,7 @@ async function checkForPendingData() {
 
     if (pdfResponse.success && pdfResponse.pdfData && pdfResponse.platform === 'claude') {
       await uploadPDFToClaude(pdfResponse.pdfData, pdfResponse.fileName, pdfResponse.prompt);
-      return;
+      return true; // 成功處理
     }
 
     // 檢查是否有 YouTube 數據
@@ -17,10 +43,13 @@ async function checkForPendingData() {
 
     if (youtubeResponse.success && youtubeResponse.text && youtubeResponse.platform === 'claude') {
       await insertTextToClaude(youtubeResponse.text);
-      return;
+      return true; // 成功處理
     }
+
+    return false; // 沒有 pending data
   } catch (error) {
     console.error('Claude: Error checking for pending data:', error);
+    throw error; // 重新拋出以觸發重試
   }
 }
 
