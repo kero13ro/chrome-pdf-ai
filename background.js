@@ -109,7 +109,6 @@ function extractFileName(url) {
 
 async function handleYouTubeTranscript(prompt, platform, tabId) {
   try {
-    // 向 content-youtube.js 請求提取字幕
     let response;
     try {
       response = await chrome.tabs.sendMessage(tabId, { action: 'extractTranscript' });
@@ -121,10 +120,8 @@ async function handleYouTubeTranscript(prompt, platform, tabId) {
       throw new Error(response?.error || '無法提取字幕');
     }
 
-    // 組合完整的文字內容
     const fullText = `${prompt}\n\n字幕內容:\n${response.transcript}`;
 
-    // 儲存到 storage
     await chrome.storage.local.set({
       youtubeText: fullText,
       youtubePrompt: prompt,
@@ -132,7 +129,6 @@ async function handleYouTubeTranscript(prompt, platform, tabId) {
       youtubeTimestamp: Date.now()
     });
 
-    // 開啟 AI 平台
     const aiPlatform = AI_PLATFORMS[platform] || AI_PLATFORMS.chatgpt;
     await chrome.tabs.create({ url: aiPlatform.url });
 

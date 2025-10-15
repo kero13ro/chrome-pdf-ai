@@ -16,14 +16,12 @@ async function extractYouTubeTranscript() {
   try {
     console.log('Extracting YouTube transcript...');
 
-    // Method 1: Extract from transcript panel (most reliable)
     const panelTranscript = await fetchFromOpenPanel();
     if (panelTranscript) {
       console.log('Successfully extracted from transcript panel');
       return panelTranscript;
     }
 
-    // Method 2: Extract from ytInitialPlayerResponse
     const transcript = await fetchTranscriptFromPlayerResponse();
     if (transcript) {
       console.log('Successfully extracted from PlayerResponse');
@@ -82,7 +80,6 @@ async function fetchTranscriptFromPlayerResponse() {
 
     console.log(`Found ${captionTracks.length} caption tracks`);
 
-    // Prefer English captions
     let selectedTrack = captionTracks.find(track =>
       track.languageCode === 'en' ||
       track.languageCode === 'en-US' ||
@@ -102,7 +99,6 @@ async function fetchTranscriptFromPlayerResponse() {
 
     console.log('Caption URL:', captionUrl);
 
-    // Use background script to fetch caption content (avoids CORS)
     const fetchResponse = await chrome.runtime.sendMessage({
       action: 'fetchCaptionUrl',
       url: captionUrl
@@ -119,7 +115,6 @@ async function fetchTranscriptFromPlayerResponse() {
 
     let transcript = '';
 
-    // Try parsing as JSON
     try {
       const jsonData = JSON.parse(text);
       console.log('Successfully parsed as JSON');
@@ -143,7 +138,6 @@ async function fetchTranscriptFromPlayerResponse() {
     } catch (jsonError) {
       console.log('Not JSON format, trying XML parsing');
 
-      // Try parsing as XML
       try {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(text, 'text/xml');
@@ -186,18 +180,16 @@ async function fetchFromOpenPanel() {
     if (!transcriptPanel) {
       console.log('Transcript panel not open, attempting to open...');
 
-      // Try to expand description first
       const moreButton = document.querySelector('tp-yt-paper-button#expand, #expand');
       if (moreButton) {
         const buttonText = moreButton.textContent.toLowerCase();
         if (buttonText.includes('more')) {
           console.log('Clicking expand description button...');
           moreButton.click();
-          await sleep(800);
+          await sleep(300); // Reduced delay, description expansion is usually fast
         }
       }
 
-      // Find and click "Show transcript" button
       const transcriptSelectors = [
         'button[aria-label*="transcript" i]',
         'button[aria-label*="Show transcript" i]',
@@ -216,7 +208,6 @@ async function fetchFromOpenPanel() {
             break;
           }
         } catch (e) {
-          // Selector not supported, skip
         }
       }
 
@@ -239,13 +230,19 @@ async function fetchFromOpenPanel() {
       if (transcriptButton) {
         console.log('Clicking transcript button...');
         transcriptButton.click();
-        await sleep(2000);
+
+        // Use polling to wait for transcript panel, max 3 seconds
+        transcriptPanel = await waitForElement('ytd-transcript-renderer', 3000, 50);
+
+        if (!transcriptPanel) {
+          console.log('Transcript panel did not appear after clicking button');
+          return null;
+        }
+        console.log('Transcript panel appeared');
       } else {
         console.log('Show transcript button not found, please manually open transcript panel');
         return null;
       }
-
-      transcriptPanel = document.querySelector('ytd-transcript-renderer');
     }
 
     if (!transcriptPanel) {
@@ -255,13 +252,22 @@ async function fetchFromOpenPanel() {
 
     console.log('Transcript panel found, extracting content...');
 
-    const transcriptSegments = transcriptPanel.querySelectorAll('ytd-transcript-segment-renderer');
+    let transcriptSegments = transcriptPanel.querySelectorAll('ytd-transcript-segment-renderer');
 
     if (transcriptSegments.length === 0) {
       console.log('No transcript segments in panel, waiting...');
-      await sleep(1000);
-      const retrySegments = transcriptPanel.querySelectorAll('ytd-transcript-segment-renderer');
-      if (retrySegments.length === 0) {
+      // Use polling to wait for transcript segments, max 2 seconds
+      const startTime = Date.now();
+      while (Date.now() - startTime < 2000) {
+        transcriptSegments = transcriptPanel.querySelectorAll('ytd-transcript-segment-renderer');
+        if (transcriptSegments.length > 0) {
+          console.log('Transcript segments loaded');
+          break;
+        }
+        await sleep(50);
+      }
+
+      if (transcriptSegments.length === 0) {
         console.log('Still no transcript segments');
         return null;
       }
@@ -318,4 +324,16 @@ function decodeHTML(html) {
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function waitForElement(selector, timeout = 5000, checkInterval = 100) {
+  const startTime = Date.now();
+  while (Date.now() - startTime < timeout) {
+    const element = document.querySelector(selector);
+    if (element) {
+      return element;
+    }
+    await sleep(checkInterval);
+  }
+  return null;
 }

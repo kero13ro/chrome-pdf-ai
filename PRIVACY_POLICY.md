@@ -1,10 +1,10 @@
-# Privacy Policy for PDF to AI Assistant
+# Privacy Policy for YouTube & PDF to AI Assistant
 
-**Last Updated: October 5, 2024**
+**Last Updated: October 15, 2024**
 
 ## Overview
 
-PDF to AI Assistant ("the Extension") is committed to protecting your privacy. This privacy policy explains how we handle your information.
+YouTube & PDF to AI Assistant ("the Extension") is committed to protecting your privacy. This privacy policy explains how we handle your information.
 
 ## Information We Collect
 
@@ -13,13 +13,19 @@ PDF to AI Assistant ("the Extension") is committed to protecting your privacy. T
 The Extension stores the following information **locally on your device only**:
 
 1. **User Preferences**
-   - Selected AI platform (Claude or ChatGPT)
-   - Custom prompt text
+   - Selected AI platform (Claude or ChatGPT) for PDF and YouTube features
+   - Custom prompt text for PDF analysis
+   - Custom prompt text for YouTube transcript processing
 
 2. **Temporary PDF Data**
    - PDF files are temporarily converted to base64 format and stored in Chrome's local storage
    - This data is automatically deleted after 5 minutes or after successful upload to the AI platform
    - PDF data never leaves your device except when sent to your chosen AI platform
+
+3. **Temporary YouTube Transcript Data**
+   - Video transcripts are temporarily stored in Chrome's local storage
+   - This data is automatically deleted after 5 minutes or after successful upload to the AI platform
+   - Transcript data never leaves your device except when sent to your chosen AI platform
 
 ### Data We Do NOT Collect
 
@@ -32,10 +38,11 @@ The Extension stores the following information **locally on your device only**:
 
 - **User Preferences**: Stored locally to remember your settings between sessions
 - **PDF Data**: Temporarily stored to facilitate upload to your chosen AI platform
+- **YouTube Transcript Data**: Temporarily stored to facilitate upload to your chosen AI platform
 
 ## Third-Party Services
 
-When you use this Extension, PDF files are sent to the AI platform you choose:
+When you use this Extension, PDF files and YouTube transcripts are sent to the AI platform you choose:
 
 - **Claude AI** (https://claude.ai) - Operated by Anthropic
 - **ChatGPT** (https://chatgpt.com) - Operated by OpenAI
@@ -48,10 +55,9 @@ Please review their respective privacy policies:
 
 The Extension requests the following permissions:
 
-- **activeTab**: To detect PDF pages and access the current tab's URL
+- **activeTab**: To detect PDF pages and YouTube video pages, and to access the current tab's URL
 - **storage**: To save your preferences locally on your device
-- **notifications**: To show error messages when needed
-- **host_permissions** (claude.ai, chatgpt.com): To automatically upload PDFs and insert prompts on these websites
+- **host_permissions** (claude.ai, chatgpt.com, youtube.com): To extract YouTube transcripts and automatically upload PDFs/transcripts and insert prompts on AI platforms
 
 ## Data Security
 

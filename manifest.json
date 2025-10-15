@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Extract YouTube video transcripts and send PDFs to AI assistants (Claude, ChatGPT) for instant analysis and answers",
   "author": "kero13ro",
+  "homepage_url": "https://github.com/kero13ro/chrome-pdf-ai",
   "permissions": [
     "activeTab",
     "storage"

@@ -1,17 +1,20 @@
-// Default settings
 const DEFAULT_SETTINGS = {
   prompt: '以考生的角度，分析問題並撰寫模擬答案，考慮到時間限制，條列式回答，盡可能使用學術性的關鍵字，並且用繁體中文回答。並在每一大題後加上詳解，解釋解題思路和脈絡。',
-  youtubePrompt: '將所有英文字幕 翻譯成繁體中文，並附在每一行後面',
+  youtubePrompt: '用英文簡要彙整三、四個段落的重點，並附上繁體中文版本',
   aiPlatform: 'chatgpt',
   youtubeAiPlatform: 'chatgpt'
 };
 
-let currentMode = null; // 'youtube' or 'pdf'
+let currentMode = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const submitBtn = document.getElementById('submitBtn');
+
+  // Show loading on button
+  setButtonLoading(submitBtn, true);
+
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-  // 檢查頁面類型
   const isYouTube = tab.url && tab.url.includes('youtube.com/watch');
   const isPDF = await checkIfPDF(tab.url);
 
@@ -22,43 +25,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentMode = 'pdf';
     await initializePDFMode();
   } else {
+    setButtonLoading(submitBtn, false);
     showError('請在 YouTube 影片頁面或 PDF 頁面使用此功能');
+    return;
   }
 
-  // 綁定送出按鈕
-  document.getElementById('submitBtn').addEventListener('click', handleSubmit);
+  // Hide loading after initialization is complete
+  setButtonLoading(submitBtn, false);
+  submitBtn.addEventListener('click', handleSubmit);
 });
 
 async function initializeYouTubeMode() {
-  // 更新標題
   document.getElementById('headerTitle').textContent = '🎬 YouTube AI Assistant';
   document.getElementById('headerSubtitle').textContent = '提取字幕並送至 AI 平台';
 
-  // 載入設定
   const settings = await chrome.storage.local.get(['youtubePrompt', 'youtubeAiPlatform']);
 
-  // 設定提示詞
   const prompt = settings.youtubePrompt || DEFAULT_SETTINGS.youtubePrompt;
   document.getElementById('promptInput').value = prompt;
 
-  // 設定 AI 平台
   const platform = settings.youtubeAiPlatform || DEFAULT_SETTINGS.youtubeAiPlatform;
   document.getElementById(platform === 'claude' ? 'claudeRadio' : 'chatgptRadio').checked = true;
 }
 
 async function initializePDFMode() {
-  // 更新標題
   document.getElementById('headerTitle').textContent = '📄 PDF to AI Assistant';
   document.getElementById('headerSubtitle').textContent = '傳送 PDF 到 AI 平台';
 
-  // 載入設定
   const settings = await chrome.storage.local.get(['prompt', 'aiPlatform']);
 
-  // 設定提示詞
   const prompt = settings.prompt || DEFAULT_SETTINGS.prompt;
   document.getElementById('promptInput').value = prompt;
 
-  // 設定 AI 平台
   const platform = settings.aiPlatform || DEFAULT_SETTINGS.aiPlatform;
   document.getElementById(platform === 'claude' ? 'claudeRadio' : 'chatgptRadio').checked = true;
 }
@@ -68,13 +66,11 @@ async function handleSubmit() {
   const promptInput = document.getElementById('promptInput');
   const prompt = promptInput.value.trim();
 
-  // 驗證提示詞
   if (!prompt) {
     showMessage('請輸入提示詞', 'error');
     return;
   }
 
-  // 取得選擇的平台
   const platformRadios = document.querySelectorAll('input[name="aiPlatform"]');
   let selectedPlatform = null;
   for (const radio of platformRadios) {
@@ -89,7 +85,6 @@ async function handleSubmit() {
     return;
   }
 
-  // 儲存設定
   if (currentMode === 'youtube') {
     await chrome.storage.local.set({
       youtubePrompt: prompt,
@@ -102,7 +97,6 @@ async function handleSubmit() {
     });
   }
 
-  // 停用按鈕
   submitBtn.disabled = true;
   showMessage('處理中...', 'info');
 
@@ -158,7 +152,6 @@ async function handlePDFSubmit(tab, prompt, platform) {
 async function checkIfPDF(url) {
   if (!url) return false;
 
-  // 快速檢查 URL 是否包含 .pdf
   const urlLower = url.toLowerCase();
   if (urlLower.endsWith('.pdf') ||
       urlLower.includes('.pdf?') ||
@@ -166,7 +159,6 @@ async function checkIfPDF(url) {
     return true;
   }
 
-  // 對於沒有 .pdf 副檔名的 URL，請求 background.js 進行深度檢測
   try {
     const response = await chrome.runtime.sendMessage({
       action: 'checkIfPDF',
@@ -183,6 +175,16 @@ function showMessage(message, type) {
   const statusDiv = document.getElementById('statusMessage');
   statusDiv.textContent = message;
   statusDiv.className = `status-message show ${type}`;
+}
+
+function setButtonLoading(button, isLoading) {
+  if (isLoading) {
+    button.classList.add('loading');
+    button.disabled = true;
+  } else {
+    button.classList.remove('loading');
+    button.disabled = false;
+  }
 }
 
 function showError(message) {

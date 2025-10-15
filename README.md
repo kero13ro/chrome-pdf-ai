@@ -1,6 +1,6 @@
-# PDF to AI Assistant - Chrome Extension
+# YouTube & PDF to AI Assistant - Chrome Extension
 
-A Chrome extension that instantly sends PDF files to AI assistants (Claude or ChatGPT) for analysis with one click.
+A Chrome extension that extracts YouTube video transcripts and sends PDF files to AI assistants (Claude or ChatGPT) for instant analysis with one click.
 
 [English](#english) | [繁體中文](#繁體中文)
 
@@ -10,10 +10,11 @@ A Chrome extension that instantly sends PDF files to AI assistants (Claude or Ch
 
 ### Features
 
+- 🎬 **YouTube Transcript Extraction**: Extract video transcripts from any YouTube video with one click
 - 📄 **One-Click PDF Upload**: Click the extension icon on any PDF page
-- 🤖 **Multiple AI Platforms**: Choose between Claude AI or ChatGPT
-- 📤 **Auto-Upload**: Automatically uploads PDF and submits your prompt
-- 💬 **Custom Prompts**: Set your own default questions and prompts
+- 🤖 **Multiple AI Platforms**: Choose between Claude AI or ChatGPT for each feature
+- 📤 **Auto-Upload**: Automatically uploads content and submits your prompt
+- 💬 **Custom Prompts**: Set separate prompts for YouTube and PDF
 - 🔒 **Privacy-Focused**: All processing happens locally on your device
 - ⚡ **Fast & Easy**: No manual copy-paste needed
 
@@ -38,6 +39,15 @@ Use online tools like [favicon.io](https://favicon.io/) or [IconKitchen](https:/
 
 ### How to Use
 
+**For YouTube Videos:**
+1. **Open any YouTube video**
+2. **Click the extension icon** in your toolbar
+3. **Transcript is automatically**:
+   - Extracted from the video
+   - Sent to your chosen AI platform
+   - Submitted with your custom prompt
+
+**For PDF Files:**
 1. **Navigate to any PDF file** in your browser
 2. **Click the extension icon** in your toolbar
 3. **PDF is automatically**:
@@ -47,50 +57,57 @@ Use online tools like [favicon.io](https://favicon.io/) or [IconKitchen](https:/
 
 ### Settings
 
-Right-click the extension icon → **Options** to configure:
+The extension popup allows you to configure:
 
-- **AI Platform**: Choose Claude or ChatGPT (default: ChatGPT)
-- **Custom Prompt**: Set your default question or instruction
+- **AI Platform**: Choose Claude or ChatGPT for YouTube and PDF separately
+- **YouTube Prompt**: Set your default prompt for video transcripts (e.g., "Summarize" or "Translate to Traditional Chinese")
+- **PDF Prompt**: Set your default prompt for PDF analysis
 - **Save Settings**: All preferences stored locally
 
 ### Example Use Cases
 
-**Exam Paper Analysis**
+**YouTube Transcript Translation**
+```
+Translate all English subtitles to Traditional Chinese, and attach them after each line.
+```
+
+**YouTube Video Summary**
+```
+Summarize the main points of this video in 3-4 paragraphs in English, with a Traditional Chinese version.
+```
+
+**Exam Paper Analysis (PDF)**
 ```
 Analyze this exam paper from a student's perspective. Provide concise,
 bullet-point answers with explanations and key academic concepts.
 ```
 
-**Document Summary**
+**Document Summary (PDF)**
 ```
 Provide a comprehensive summary of this PDF, highlighting the main points
 and key takeaways.
 ```
 
-**Translation**
-```
-Translate this PDF document to Traditional Chinese.
-```
-
 ### Technical Details
 
 - **manifest.json**: Extension configuration (Manifest V3)
-- **background.js**: Service worker handling PDF downloads
+- **background.js**: Service worker handling PDF downloads and YouTube transcript processing
+- **content-youtube.js**: YouTube page integration for transcript extraction
 - **content-claude.js**: Claude.ai page integration
 - **content-chatgpt.js**: ChatGPT page integration
-- **settings.html/js**: Options page
+- **popup.html/js**: Extension popup with settings
 
 ### Permissions
 
-- `activeTab`: Detect PDF pages and get current URL
+- `activeTab`: Detect YouTube video pages and PDF pages, get current URL
 - `storage`: Save your preferences locally
-- `notifications`: Show error messages when needed
-- `host_permissions`: Access Claude.ai and ChatGPT for auto-upload
+- `host_permissions` (youtube.com): Extract video transcripts
+- `host_permissions` (claude.ai, chatgpt.com): Auto-upload content and insert prompts
 
 ### Privacy & Security
 
 - ✅ No data collection - we don't have servers
-- ✅ PDFs processed locally on your device
+- ✅ YouTube transcripts and PDFs processed locally on your device
 - ✅ Data sent only to your chosen AI platform
 - ✅ All settings stored securely in Chrome storage
 - ✅ Automatic cleanup after 5 minutes
@@ -98,6 +115,11 @@ Translate this PDF document to Traditional Chinese.
 See [PRIVACY_POLICY.md](PRIVACY_POLICY.md) for details.
 
 ### Troubleshooting
+
+**YouTube transcript not extracting?**
+- Ensure the video has captions/subtitles available
+- Check you're on a YouTube video page (youtube.com/watch)
+- Open browser console (F12) for error messages
 
 **PDF not uploading?**
 - Ensure you're on a PDF page or direct PDF URL
@@ -119,11 +141,14 @@ MIT License
 
 ### Changelog
 
-**v1.0.0** (2024-10-05)
+**v1.0.0** (2024-10-15)
 - Initial release
+- YouTube transcript extraction
+- PDF upload support
 - Support for Claude and ChatGPT
-- Custom prompts
+- Separate custom prompts for YouTube and PDF
 - Auto-upload and submit
+- Loading indicators for better UX
 
 ---
 
@@ -131,10 +156,11 @@ MIT License
 
 ### 功能特色
 
+- 🎬 **YouTube 字幕提取**：一鍵提取任何 YouTube 影片的字幕
 - 📄 **一鍵上傳 PDF**：在任何 PDF 頁面點擊插件圖標
-- 🤖 **多 AI 平台支援**：選擇 Claude AI 或 ChatGPT
-- 📤 **自動上傳**：自動上傳 PDF 並送出提示詞
-- 💬 **自訂提示詞**：設定您自己的預設問題和指令
+- 🤖 **多 AI 平台支援**：分別為 YouTube 和 PDF 選擇 Claude AI 或 ChatGPT
+- 📤 **自動上傳**：自動上傳內容並送出提示詞
+- 💬 **自訂提示詞**：為 YouTube 和 PDF 分別設定提示詞
 - 🔒 **注重隱私**：所有處理都在您的裝置本地進行
 - ⚡ **快速簡單**：無需手動複製貼上
 
@@ -150,6 +176,15 @@ MIT License
 
 ### 使用方法
 
+**YouTube 影片：**
+1. **開啟任何 YouTube 影片**
+2. **點擊工具列中的插件圖標**
+3. **字幕會自動**：
+   - 從影片中提取
+   - 傳送到您選擇的 AI 平台
+   - 使用您的自訂提示詞送出
+
+**PDF 檔案：**
 1. **在瀏覽器中開啟任何 PDF 檔案**
 2. **點擊工具列中的插件圖標**
 3. **PDF 會自動**：
@@ -159,42 +194,48 @@ MIT License
 
 ### 設定選項
 
-右鍵點擊插件圖標 → **選項** 進行設定：
+插件彈出視窗可進行設定：
 
-- **AI 平台**：選擇 Claude 或 ChatGPT（預設：ChatGPT）
-- **自訂提示詞**：設定您的預設問題或指令
+- **AI 平台**：分別為 YouTube 和 PDF 選擇 Claude 或 ChatGPT
+- **YouTube 提示詞**：設定影片字幕的預設提示詞（例如：「摘要」或「翻譯成繁體中文」）
+- **PDF 提示詞**：設定 PDF 分析的預設提示詞
 - **儲存設定**：所有偏好設定都儲存在本地
 
 ### 使用範例
 
-**考試試題分析**
+**YouTube 字幕翻譯**
+```
+將所有英文字幕翻譯成繁體中文，並附在每一行後面。
+```
+
+**YouTube 影片摘要**
+```
+用英文簡要彙整三、四個段落的重點，並附上繁體中文版本。
+```
+
+**考試試題分析（PDF）**
 ```
 以考生的角度，分析問題並撰寫模擬答案，考慮到時間限制，
 條列式回答，盡可能使用學術性的關鍵字，並且用繁體中文回答。
 並在每一大題後加上詳解，解釋解題思路和脈絡。
 ```
 
-**文件摘要**
+**文件摘要（PDF）**
 ```
 請提供這份 PDF 文件的摘要，重點整理主要內容和關鍵要點。
 ```
 
-**翻譯需求**
-```
-請將這份 PDF 文件翻譯成繁體中文。
-```
-
 ### 權限說明
 
-- `activeTab`：偵測 PDF 頁面和取得當前網址
+- `activeTab`：偵測 YouTube 影片頁面和 PDF 頁面，取得當前網址
 - `storage`：在本地儲存您的偏好設定
-- `notifications`：在需要時顯示錯誤訊息
-- `host_permissions`：存取 Claude.ai 和 ChatGPT 以自動上傳
+- `host_permissions` (youtube.com)：提取影片字幕
+- `host_permissions` (claude.ai, chatgpt.com)：自動上傳內容並插入提示詞
 
 ### 隱私與安全
 
 - ✅ 不收集資料 - 我們沒有伺服器
-- ✅ PDF 在您的裝置上本地處理
+- ✅ YouTube 字幕和 PDF 在您的裝置上本地處理
 - ✅ 資料僅傳送到您選擇的 AI 平台
 - ✅ 所有設定安全地儲存在 Chrome 儲存空間
 - ✅ 5 分鐘後自動清除
@@ -202,6 +243,11 @@ MIT License
 詳見 [PRIVACY_POLICY.md](PRIVACY_POLICY.md)。
 
 ### 疑難排解
+
+**YouTube 字幕無法提取？**
+- 確保影片有可用的字幕/CC
+- 檢查您在 YouTube 影片頁面（youtube.com/watch）
+- 開啟瀏覽器控制台（F12）查看錯誤訊息
 
 **PDF 無法上傳？**
 - 確保您在 PDF 頁面或直接的 PDF 網址上
@@ -223,8 +269,11 @@ MIT License
 
 ### 更新日誌
 
-**v1.0.0** (2024-10-05)
+**v1.0.0** (2024-10-15)
 - 初始版本發布
+- YouTube 字幕提取功能
+- PDF 上傳支援
 - 支援 Claude 和 ChatGPT
-- 自訂提示詞功能
+- YouTube 和 PDF 分別的自訂提示詞
 - 自動上傳和送出
+- 載入指示器改善使用體驗
