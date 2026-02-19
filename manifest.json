@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YouTube & PDF to AI Assistant",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Extract YouTube video transcripts and send PDFs to AI assistants (Claude, ChatGPT) for instant analysis and answers",
   "author": "kero13ro",
   "homepage_url": "https://github.com/kero13ro/chrome-pdf-ai",

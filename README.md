@@ -62,7 +62,7 @@ The extension popup allows you to configure:
 - **AI Platform**: Choose Claude or ChatGPT for YouTube and PDF separately
 - **YouTube Prompt**: Set your default prompt for video transcripts (e.g., "Summarize" or "Translate to Traditional Chinese")
 - **PDF Prompt**: Set your default prompt for PDF analysis
-- **Save Settings**: All preferences stored locally
+- **Auto-Save Settings**: Prompts and platform selection auto-save as you type
 
 ### Example Use Cases
 
@@ -141,6 +141,10 @@ MIT License
 
 ### Changelog
 
+**v1.1.0** (2025-02-19)
+- Auto-save prompts and AI platform selection (no need to submit to save)
+- Simplified Makefile with auto version bump on release
+
 **v1.0.0** (2024-10-15)
 - Initial release
 - YouTube transcript extraction
@@ -199,7 +203,7 @@ MIT License
 - **AI 平台**：分別為 YouTube 和 PDF 選擇 Claude 或 ChatGPT
 - **YouTube 提示詞**：設定影片字幕的預設提示詞（例如：「摘要」或「翻譯成繁體中文」）
 - **PDF 提示詞**：設定 PDF 分析的預設提示詞
-- **儲存設定**：所有偏好設定都儲存在本地
+- **自動儲存設定**：提示詞和平台選擇在輸入時自動儲存
 
 ### 使用範例
 
@@ -268,6 +272,10 @@ MIT License
 MIT License
 
 ### 更新日誌
+
+**v1.1.0** (2025-02-19)
+- 提示詞和 AI 平台選擇自動儲存（無需按送出即可保存）
+- 簡化 Makefile，release 時自動升版
 
 **v1.0.0** (2024-10-15)
 - 初始版本發布

@@ -6,6 +6,20 @@ const DEFAULT_SETTINGS = {
 };
 
 let currentMode = null;
+let saveTimeout = null;
+
+function autoSavePrompt(value) {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    const key = currentMode === 'youtube' ? 'youtubePrompt' : 'prompt';
+    chrome.storage.local.set({ [key]: value });
+  }, 500);
+}
+
+function autoSavePlatform(value) {
+  const key = currentMode === 'youtube' ? 'youtubeAiPlatform' : 'aiPlatform';
+  chrome.storage.local.set({ [key]: value });
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   const submitBtn = document.getElementById('submitBtn');
@@ -29,6 +43,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     showError('請在 YouTube 影片頁面或 PDF 頁面使用此功能');
     return;
   }
+
+  // Auto-save prompt on input
+  document.getElementById('promptInput').addEventListener('input', (e) => {
+    autoSavePrompt(e.target.value.trim());
+  });
+
+  // Auto-save platform on change
+  document.querySelectorAll('input[name="aiPlatform"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      autoSavePlatform(e.target.value);
+    });
+  });
 
   // Hide loading after initialization is complete
   setButtonLoading(submitBtn, false);
